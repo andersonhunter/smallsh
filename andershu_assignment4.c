@@ -166,18 +166,12 @@ int main() {
             // Parent process, record child
             // Check if background process
             if(curr_command->is_bg == true) {
-              printf("We're in the background\n");
-              fflush(stdout);
               newChild(head, spawnpid);
               break;
             }
             // Foreground process
             else {
-              printf("We're in the foreground\n");
-              fflush(stdout);
               waitpid(spawnpid, &childStatus, 0);
-              printf("WE're back!\n");
-              fflush(stdout);
               break;
             }
             break;

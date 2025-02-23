@@ -43,7 +43,7 @@ struct cli *parse_input(struct cli *curr_command) {
   char *token = strtok(input, " \n");
   while(token) {
     // Determine if user entered a comment
-    if(!strcmp(token, "#") && curr_command->argc == 0) {
+    if(!strncmp(token, "#", 1) && curr_command->argc == 0) {
       break;
     }
     // Determine if user specified input file
@@ -105,9 +105,9 @@ int main() {
   struct children *head = malloc(sizeof(struct children));
   while(true) {
     struct cli *curr_command = malloc(sizeof(struct cli));
+    curr_command->argc = 0;
     int status = 0;
     parse_input(curr_command);
-    printArgs(curr_command);
 
     // Check if command is exit
     if(!strcmp(curr_command->argv[0], "exit")) {

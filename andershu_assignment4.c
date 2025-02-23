@@ -73,11 +73,7 @@ struct cli *parse_input(struct cli *curr_command) {
 
 void newChild(struct children *head, int pid) {
   /* A helper method to record a new child process */
-  printf("Adding new child with pid %d\n", pid);
-  fflush(stdout);
   if(!head->pid) {
-    printf("New child is the head\n");
-    fflush(stdout);
     head->pid = pid;
   }
   else {
@@ -89,8 +85,6 @@ void newChild(struct children *head, int pid) {
     new->pid = pid;
     new->next = NULL;
     temp->next = new;
-    printf("If this worked then <%d> will be a pid\n", new->pid);
-    fflush(stdout);
   }
 }
 
@@ -113,7 +107,6 @@ int main() {
     struct cli *curr_command = malloc(sizeof(struct cli));
     int status = 0;
     parse_input(curr_command);
-    printf("Entered the following %d args:\n", curr_command->argc);
     printArgs(curr_command);
 
     // Check if command is exit
@@ -156,9 +149,25 @@ int main() {
     
     // Check if command is pwd
     if(!strcmp(curr_command->argv[0], "pwd")) {
-      // Print the current working directory
-      printf("%s\n", getenv("PWD"));
-      fflush(stdout);
+      // Print the current working directory in a child process
+      pid_t spawnpid = -5;  // Hold child's PID
+      spawnpid = fork();    // Fork into child process
+      switch (spawnpid) {
+        case -1:
+          // Error, set error status
+          status = 1;
+          exit(1);
+          break;
+        case 0:
+          // Child process, pwd
+          printf("%s\n", getenv("PWD"));
+          fflush(stdout);
+          break;
+        default:
+          // Parent process, record child
+          newChild(head, spawnpid);
+          break;
+      }
     }
 
     // Check if command is status

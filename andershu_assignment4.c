@@ -108,77 +108,91 @@ int main() {
     curr_command->argc = 0;
     int status = 0;
     parse_input(curr_command);
-
-    // Check if command is exit
-    if(!strcmp(curr_command->argv[0], "exit")) {
-      // Kill children
-      struct children *temp = head;
-      // Iterate over children
-      while(temp!=NULL) {
-        struct children *previous;
-        kill(temp->pid, 15);  // Kill the child with SIGTERM
-        previous = temp;
-        temp = temp->next; 
-        free(previous);       // Free the newly-killed child
+    if(curr_command->argc > 0) {
+      // Check if command is exit
+      if(!strcmp(curr_command->argv[0], "exit")) {
+        // Kill children
+        struct children *temp = head;
+        // Iterate over children
+        while(temp!=NULL) {
+          struct children *previous;
+          kill(temp->pid, 15);  // Kill the child with SIGTERM
+          previous = temp;
+          temp = temp->next; 
+          free(previous);       // Free the newly-killed child
+        }
+        // Exit
+        exit(status);
       }
-      // Reset head
-      head = malloc(sizeof(struct children));
-      // Exit
-      break;
-    }
   
-    // Check if command is cd
-    if(!strcmp(curr_command->argv[0], "cd")) {
-      // No args, so cd to HOME
-      if(curr_command->argc == 1) {
-        setenv("PWD", getenv("HOME"), 1);                // Set current working directory to home
+      // Check if command is cd
+      if(!strcmp(curr_command->argv[0], "cd")) {
+        // No args, so cd to HOME
+        if(curr_command->argc == 1) {
+          setenv("PWD", getenv("HOME"), 1);                // Set current working directory to home
+        }
+        // Check if relative path selected
+        else if(!strncmp(curr_command->argv[1], "./", 2)) {
+          char* newDir = malloc(MAX_ARGS * sizeof(char));  // Allocate memory for new path
+          strcpy(newDir, getenv("PWD"));                   // Copy current working directory to new path
+          strcat(newDir, curr_command->argv[1] + 1);       // Append user-defined new directory without leading chars
+          setenv("PWD", newDir, 1);                        // Set env variable for cwd to new directory path
+          free(newDir);
+        }
+        // Absolute path chosen
+        else {
+          setenv("PWD", curr_command->argv[1], 1);         // Set pwd env variable to user-chosen absolute path
+        }
       }
-      // Check if relative path selected
-      else if(!strncmp(curr_command->argv[1], "./", 2)) {
-        char* newDir = malloc(MAX_ARGS * sizeof(char));  // Allocate memory for new path
-        strcpy(newDir, getenv("PWD"));                   // Copy current working directory to new path
-        strcat(newDir, curr_command->argv[1] + 1);       // Append user-defined new directory without leading chars
-        setenv("PWD", newDir, 1);                        // Set env variable for cwd to new directory path
-        free(newDir);
-      }
-      // Absolute path chosen
-      else {
-        setenv("PWD", curr_command->argv[1], 1);         // Set pwd env variable to user-chosen absolute path
-      }
-    }
     
-    // Check if command is pwd
-    if(!strcmp(curr_command->argv[0], "pwd")) {
-      // Print the current working directory in a child process
-      pid_t spawnpid = -5;  // Hold child's PID
-      spawnpid = fork();    // Fork into child process
-      switch (spawnpid) {
-        case -1:
-          // Error, set error status
-          status = 1;
-          exit(1);
-          break;
-        case 0:
-          // Child process, pwd
-          printf("%s\n", getenv("PWD"));
-          fflush(stdout);
-          break;
-        default:
-          // Parent process, record child
-          newChild(head, spawnpid);
-          break;
+      // Check if command is pwd
+      if(!strcmp(curr_command->argv[0], "pwd")) {
+        // Print the current working directory in a child process
+        pid_t spawnpid = -5;  // Hold child's PID
+        int childStatus;
+        spawnpid = fork();    // Fork into child process
+        switch (spawnpid) {
+          case -1:
+            // Error, set error status
+            status = 1;
+            exit(1);
+            break;
+          case 0:
+            // Child process, pwd
+            execlp("pwd", "pwd", NULL);
+            fflush(stdout);
+            exit(status);
+          default:
+            // Parent process, record child
+            // Check if background process
+            if(curr_command->is_bg == true) {
+              printf("We're in the background\n");
+              fflush(stdout);
+              newChild(head, spawnpid);
+              break;
+            }
+            // Foreground process
+            else {
+              printf("We're in the foreground\n");
+              fflush(stdout);
+              waitpid(spawnpid, &childStatus, 0);
+              printf("WE're back!\n");
+              fflush(stdout);
+              break;
+            }
+            break;
+        }
+      }
+
+      // Check if command is status
+      if(!strcmp(curr_command->argv[0], "status")) {
+        switch(status) {
+          case 0:
+            printf("Exit status %d\n", status);
+            break;
+        }
       }
     }
-
-    // Check if command is status
-    if(!strcmp(curr_command->argv[0], "status")) {
-      switch(status) {
-        case 0:
-          printf("Exit status %d\n", status);
-          break;
-      }
-    }
-
     fflush(stdin);
     fflush(stdout);
     free(curr_command);

@@ -189,6 +189,13 @@ int main() {
         }
       }
     }
+    // Check if any background children have finished
+    struct children *temp = head;
+    struct children *previous = head;
+    while(temp!=NULL) {
+      printf("\n%d\n", temp->pid);
+      temp = temp->next;
+    }
     fflush(stdout);
     free(curr_command);
   }

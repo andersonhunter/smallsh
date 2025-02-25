@@ -160,13 +160,15 @@ int main() {
           case 0:
             // Child process, pwd
             execlp("pwd", "pwd", NULL);
-            fflush(stdout);
-            exit(status);
+            perror("execlp");
+            exit(EXIT_FAILURE);
           default:
             // Parent process, record child
             // Check if background process
             if(curr_command->is_bg == true) {
               newChild(head, spawnpid);
+              printf("background pid is %d\n", spawnpid);
+              fflush(stdout);
               break;
             }
             // Foreground process
@@ -187,7 +189,6 @@ int main() {
         }
       }
     }
-    fflush(stdin);
     fflush(stdout);
     free(curr_command);
   }

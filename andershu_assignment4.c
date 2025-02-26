@@ -256,6 +256,37 @@ int main() {
         }
       }
 
+      // Check if command is wc
+      if(!strcmp(curr_command->argv[0], "wc")) {
+        pid_t spawnpid = -5;
+        int childStatus;
+        spawnpid = fork();
+        switch(spawnpid) {
+          case -1:
+            break;
+          case 0:
+            // Child process
+            // Open file
+            execvp(curr_command->argv[0], curr_command->argv);
+            perror("execvp");
+            break;
+          default:
+            // Parent process
+            if(curr_command->is_bg == true) {
+              // Background process, add child to LL
+              newChild(head, spawnpid);
+              printf("background pid is %d\n", spawnpid);
+              fflush(stdout);
+              break;
+            }
+            else {
+              waitpid(spawnpid, &childStatus, 0);
+              break;
+            }
+            break;
+        }
+      }
+
       // Check if command is status
       if(!strcmp(curr_command->argv[0], "status")) {
         switch(status) {

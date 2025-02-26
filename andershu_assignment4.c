@@ -163,13 +163,14 @@ int main() {
           free(previous);                             // Free the newly-killed child
         }
         // Exit
-        exit(status);
+        exit(EXIT_SUCCESS);
       }
   
       // Check if command is cd
       if(!strcmp(curr_command->argv[0], "cd")) {
         // No args, so cd to HOME
         if(curr_command->argc == 1) {
+          chdir(getenv("HOME"));                           // Change cwd to HOME
           setenv("PWD", getenv("HOME"), 1);                // Set current working directory to home
         }
         // Check if relative path selected
@@ -177,6 +178,7 @@ int main() {
           char* newDir = malloc(MAX_ARGS * sizeof(char));  // Allocate memory for new path
           strcpy(newDir, getenv("PWD"));                   // Copy current working directory to new path
           strcat(newDir, curr_command->argv[1] + 1);       // Append user-defined new directory without leading chars
+          chdir(newDir);                                   // Change cwd to new dir
           setenv("PWD", newDir, 1);                        // Set env variable for cwd to new directory path
           free(newDir);
         }
@@ -184,7 +186,6 @@ int main() {
         else {
           setenv("PWD", curr_command->argv[1], 1);         // Set pwd env variable to user-chosen absolute path
         }
-        exit(status);
       }
     
       // Check if command is pwd

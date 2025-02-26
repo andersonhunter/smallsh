@@ -184,6 +184,7 @@ int main() {
         else {
           setenv("PWD", curr_command->argv[1], 1);         // Set pwd env variable to user-chosen absolute path
         }
+        exit(status);
       }
     
       // Check if command is pwd

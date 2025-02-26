@@ -11,7 +11,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-
 #define INPUT_LENGTH 2048
 #define MAX_ARGS 512
 
@@ -191,9 +190,17 @@ int main() {
     }
     // Check if any background children have finished
     struct children *temp = head;
-    struct children *previous = head;
     while(temp!=NULL) {
-      printf("\n%d\n", temp->pid);
+      int childStatus;
+      waitpid(temp->pid, &childStatus, WNOHANG);
+      if(WIFEXITED(childStatus)) {
+        printf("background pid %d is done: exit value %d\n", temp->pid, WEXITSTATUS(childStatus));
+        fflush(stdout);
+      }
+      else if(WIFSIGNALED(childStatus)) {
+        printf("background pid %d is done: terminated by signal %d\n", temp->pid, WTERMSIG(childStatus));
+        fflush(stdout);
+      }
       temp = temp->next;
     }
     fflush(stdout);

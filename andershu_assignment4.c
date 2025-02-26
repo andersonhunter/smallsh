@@ -10,6 +10,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
+#include <dirent.h>
 
 #define INPUT_LENGTH 2048
 #define MAX_ARGS 512
@@ -141,8 +143,10 @@ int main() {
   while(true) {
     struct cli *curr_command = malloc(sizeof(struct cli));
     curr_command->argc = 0;
+    curr_command->is_bg = false;
     int status = 0;
     parse_input(curr_command);
+    printf("Background? %d\n", curr_command->is_bg == true);
     if(curr_command->argc > 0) {
       // Check if command is exit
       if(!strcmp(curr_command->argv[0], "exit")) {
@@ -266,7 +270,7 @@ int main() {
             break;
           case 0:
             // Child process
-            // Open file
+            // Check if file exists
             execvp(curr_command->argv[0], curr_command->argv);
             perror("execvp");
             break;

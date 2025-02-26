@@ -158,7 +158,7 @@ int main() {
             break;
           case 0:
             // Child process, pwd
-            execlp("pwd", "pwd", NULL);
+            execvp(curr_command->argv[0], curr_command->argv);
             perror("execlp");
             exit(EXIT_FAILURE);
           default:

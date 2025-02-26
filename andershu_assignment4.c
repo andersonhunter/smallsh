@@ -146,7 +146,6 @@ int main() {
     curr_command->is_bg = false;
     int status = 0;
     parse_input(curr_command);
-    printf("Background? %d\n", curr_command->is_bg == true);
     if(curr_command->argc > 0) {
       // Check if command is exit
       if(!strcmp(curr_command->argv[0], "exit")) {

@@ -67,6 +67,7 @@ struct cli *parse_input(struct cli *curr_command) {
     }
     token = strtok(NULL, " \n");
   }
+  curr_command->argv[curr_command->argc] = '\0'; // Null terminate arg vector
   return curr_command;
 }
 
@@ -200,7 +201,7 @@ int main() {
           case 0:
             // Child process, list files
             execvp(curr_command->argv[0], curr_command->argv);
-            perror("execlp");
+            perror("execvp");
             exit(EXIT_FAILURE);
           default:
             // Parent process, ck if background process

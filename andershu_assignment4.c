@@ -101,6 +101,40 @@ void printArgs(struct cli *cli) {
   }
 }
 
+void printChildren(struct children *head) {
+  // A debugging method to print the active children
+  struct children *temp = head;
+  int i = 1;
+  while(temp!=NULL) {
+    printf("Child # %d: %d\n", i, temp->pid);
+    i++;
+    temp = temp->next;
+  }
+}
+
+void removeChild(struct children *head, struct children *previous, struct children *removeNode) {
+  /*
+  A helper method to remove an inactive child 
+  Receives the head of the LL, the previous child, and the child to remove
+  */
+ struct children *temp = head;
+ if(removeNode == head && head->next == NULL) {
+  // Remove head, head is the only node
+  head->pid = 0;
+  head->next = NULL;
+ }
+ else if(removeNode == head && head->next != NULL) {
+  // Remove head, head is not the only node
+  head = head->next;
+  free(temp);
+ }
+ else {
+  // Remove some other node
+  previous->next = removeNode->next;
+  free(removeNode);
+ }
+}
+
 int main() {
   struct children *head = malloc(sizeof(struct children));
   head->pid = 0;
@@ -239,12 +273,15 @@ int main() {
         // Background process completed by exiting
         printf("background pid %d is done: exit value %d\n", temp->pid, WEXITSTATUS(childStatus));
         fflush(stdout);
+        removeChild(head, previous, temp);
+        temp = previous;
       }
       else if(WIFSIGNALED(childStatus)) {
         // Background process completed via signal termination
         printf("background pid %d is done: terminated by signal %d\n", temp->pid, WTERMSIG(childStatus));
         fflush(stdout);
-
+        removeChild(head, previous, temp);
+        temp = previous;
       }
       temp = temp->next;
     }

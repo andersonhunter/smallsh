@@ -150,6 +150,28 @@ int main() {
     curr_command->argc = 0;
     curr_command->is_bg = false;
     int status = 0;
+    // Check if any background children have finished
+    struct children *temp = head;
+    struct children *previous = head;
+    while(temp!=NULL && temp->pid != 0) {
+      int childStatus;
+      waitpid(temp->pid, &childStatus, WNOHANG);
+      if(WIFEXITED(childStatus)) {
+        // Background process completed by exiting
+        printf("background pid %d is done: exit value %d\n", temp->pid, WEXITSTATUS(childStatus));
+        fflush(stdout);
+        removeChild(head, previous, temp);
+        temp = previous;
+      }
+      else if(WIFSIGNALED(childStatus)) {
+        // Background process completed via signal termination
+        printf("background pid %d is done: terminated by signal %d\n", temp->pid, WTERMSIG(childStatus));
+        fflush(stdout);
+        removeChild(head, previous, temp);
+        temp = previous;
+      }
+      temp = temp->next;
+    }
     parse_input(curr_command);
     if(curr_command->argc > 0) {
       // Check if command is exit
@@ -347,7 +369,7 @@ int main() {
             // Child process
             execvp(curr_command->argv[0], curr_command->argv);
             perror("execvp");
-            break;
+            exit(EXIT_FAILURE);
           default:
             if(curr_command->is_bg == true) {
               newChild(head, spawnpid);
@@ -389,6 +411,33 @@ int main() {
         }
       }
 
+      // Check if command is kill
+      else if(!strcmp(curr_command->argv[0], "kill")) {
+        pid_t spawnpid = -5;
+        int childStatus;
+        spawnpid = fork();
+        switch(spawnpid) {
+          case -1:
+            break;
+          case 0:
+            // Child process
+            execvp(curr_command->argv[0], curr_command->argv);
+            perror("execvp");
+            exit(EXIT_FAILURE);
+          default:
+            if(curr_command->is_bg == true) {
+              newChild(head, spawnpid);
+              printf("background pid is %d\n", spawnpid);
+              fflush(stdout);
+              break;
+            }
+            else {
+              waitpid(spawnpid, &childStatus, 0);
+            }
+            break;
+        }
+      }
+
       // Check if command is status
       else if(!strcmp(curr_command->argv[0], "status")) {
         switch(status) {
@@ -404,28 +453,6 @@ int main() {
       }
     }
 
-    // Check if any background children have finished
-    struct children *temp = head;
-    struct children *previous = head;
-    while(temp!=NULL && temp->pid != 0) {
-      int childStatus;
-      waitpid(temp->pid, &childStatus, WNOHANG);
-      if(WIFEXITED(childStatus)) {
-        // Background process completed by exiting
-        printf("background pid %d is done: exit value %d\n", temp->pid, WEXITSTATUS(childStatus));
-        fflush(stdout);
-        removeChild(head, previous, temp);
-        temp = previous;
-      }
-      else if(WIFSIGNALED(childStatus)) {
-        // Background process completed via signal termination
-        printf("background pid %d is done: terminated by signal %d\n", temp->pid, WTERMSIG(childStatus));
-        fflush(stdout);
-        removeChild(head, previous, temp);
-        temp = previous;
-      }
-      temp = temp->next;
-    }
     fflush(stdout);
     free(curr_command);
   }

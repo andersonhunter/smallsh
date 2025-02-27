@@ -368,7 +368,15 @@ int main() {
             break;
         }
       }
+      // Handle a bad command
+      else {
+        printf("%s: no such file or directory\n", curr_command->argv[0]);
+        fflush(stdout);
+      }
     }
+
+    
+
     // Check if any background children have finished
     struct children *temp = head;
     struct children *previous = head;

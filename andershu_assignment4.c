@@ -145,11 +145,13 @@ void removeChild(struct children *head, struct children *previous, struct childr
 int main() {
   struct children *head = malloc(sizeof(struct children));
   head->pid = 0;
+  head->next = NULL;
   while(true) {
     struct cli *curr_command = malloc(sizeof(struct cli));
     curr_command->argc = 0;
     curr_command->is_bg = false;
     int status = 0;
+
     // Check if any background children have finished
     struct children *temp = head;
     struct children *previous = head;
@@ -172,7 +174,10 @@ int main() {
       }
       temp = temp->next;
     }
+    
+    // Check for input
     parse_input(curr_command);
+
     if(curr_command->argc > 0) {
       // Check if command is exit
       if(!strcmp(curr_command->argv[0], "exit")) {

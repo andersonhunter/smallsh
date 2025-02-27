@@ -307,11 +307,39 @@ int main() {
             if(curr_command->is_bg == true) {
               newChild(head, spawnpid);
               printf("background pid is %d\n", spawnpid);
+              fflush(stdout);
               break;
             }
             else {
               waitpid(spawnpid, &childStatus, 0);
               break;
+            }
+            break;
+        }
+      }
+
+      // Check if command is sleep
+      if(!strcmp(curr_command->argv[0], "sleep")) {
+        pid_t spawnpid = -5;
+        int childStatus;
+        spawnpid = fork();
+        switch(spawnpid) {
+          case -1:
+            break;
+          case 0:
+            // Child process
+            execvp(curr_command->argv[0], curr_command->argv);
+            perror("execvp");
+            break;
+          default:
+            if(curr_command->is_bg == true) {
+              newChild(head, spawnpid);
+              printf("background pid is %d\n", spawnpid);
+              fflush(stdout);
+              break;
+            }
+            else {
+              waitpid(spawnpid, &childStatus, 0);
             }
             break;
         }

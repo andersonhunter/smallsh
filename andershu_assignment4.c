@@ -12,6 +12,7 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <dirent.h>
+#include<fcntl.h>
 
 #define INPUT_LENGTH 2048
 #define MAX_ARGS 512
@@ -51,6 +52,8 @@ struct cli *parse_input(struct cli *curr_command) {
     else if(!strcmp(token, "<")) {
       // Copy user inputted input file to command struct
       curr_command->input_file = strdup(strtok(NULL, " \n"));
+      curr_command->argv[curr_command->argc] = strdup(curr_command->input_file);
+      curr_command->argc++;
     }
     // Determine if user specified output file
     else if(!strcmp(token, ">")) {
@@ -263,6 +266,7 @@ int main() {
       if(!strcmp(curr_command->argv[0], "wc")) {
         pid_t spawnpid = -5;
         int childStatus;
+        int fd;
         spawnpid = fork();
         switch(spawnpid) {
           case -1:
@@ -270,9 +274,20 @@ int main() {
           case 0:
             // Child process
             // Check if file exists
-            execvp(curr_command->argv[0], curr_command->argv);
-            perror("execvp");
-            break;
+            fd = open(curr_command->input_file, O_RDONLY);
+            if(fd == -1) {
+              // File does not exist, return an error
+              printf("%s: no such file or directory\n", curr_command->input_file);
+              fflush(stdout);
+              exit(EXIT_FAILURE);
+            }
+            else {
+              // File exists, close file and call wc
+              close(fd);
+              execvp(curr_command->argv[0], curr_command->argv);
+              perror("execvp");
+              break;
+            }
           default:
             // Parent process
             if(curr_command->is_bg == true) {

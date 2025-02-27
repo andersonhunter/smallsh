@@ -364,7 +364,7 @@ int main() {
       else if(!strcmp(curr_command->argv[0], "status")) {
         switch(status) {
           case 0:
-            printf("Exit status %d\n", status);
+            printf("exit value %d\n", status);
             break;
         }
       }

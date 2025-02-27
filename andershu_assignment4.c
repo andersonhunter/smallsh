@@ -12,7 +12,7 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <dirent.h>
-#include<fcntl.h>
+#include <fcntl.h>
 
 #define INPUT_LENGTH 2048
 #define MAX_ARGS 512

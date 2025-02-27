@@ -361,6 +361,33 @@ int main() {
             break;
         }
       }
+      
+      // Check if command is ps
+      else if (!strcmp(curr_command->argv[0], "ps")) {
+        pid_t spawnpid = -5;
+        int childStatus;
+        spawnpid = fork();
+        switch(spawnpid) {
+          case -1:
+            break;
+          case 0:
+            // Child process
+            execvp(curr_command->argv[0], curr_command->argv);
+            perror("execvp");
+            break;
+          default:
+            if(curr_command->is_bg == true) {
+              newChild(head, spawnpid);
+              printf("background pid is %d\n", spawnpid);
+              fflush(stdout);
+              break;
+            }
+            else {
+              waitpid(spawnpid, &childStatus, 0);
+            }
+            break;
+        }
+      }
 
       // Check if command is status
       else if(!strcmp(curr_command->argv[0], "status")) {
@@ -376,8 +403,6 @@ int main() {
         fflush(stdout);
       }
     }
-
-    
 
     // Check if any background children have finished
     struct children *temp = head;

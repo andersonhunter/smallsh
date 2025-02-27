@@ -173,7 +173,7 @@ int main() {
       }
   
       // Check if command is cd
-      if(!strcmp(curr_command->argv[0], "cd")) {
+      else if(!strcmp(curr_command->argv[0], "cd")) {
         // No args, so cd to HOME
         if(curr_command->argc == 1) {
           chdir(getenv("HOME"));                           // Change cwd to HOME
@@ -195,7 +195,7 @@ int main() {
       }
     
       // Check if command is pwd
-      if(!strcmp(curr_command->argv[0], "pwd")) {
+      else if(!strcmp(curr_command->argv[0], "pwd")) {
         // Print the current working directory in a child process
         pid_t spawnpid = -5;  // Hold child's PID
         int childStatus;
@@ -230,7 +230,7 @@ int main() {
       }
       
       // Check if command is ls
-      if(!strcmp(curr_command->argv[0], "ls")) {
+      else if(!strcmp(curr_command->argv[0], "ls")) {
         pid_t spawnpid = -5;
         int childStatus;
         spawnpid = fork();
@@ -263,7 +263,7 @@ int main() {
       }
 
       // Check if command is wc
-      if(!strcmp(curr_command->argv[0], "wc")) {
+      else if(!strcmp(curr_command->argv[0], "wc")) {
         pid_t spawnpid = -5;
         int childStatus;
         int fd;
@@ -306,7 +306,7 @@ int main() {
       }
 
       // Check if command is cat
-      if(!strcmp(curr_command->argv[0], "cat")) {
+      else if(!strcmp(curr_command->argv[0], "cat")) {
         pid_t spawnpid = -5;
         int childStatus;
         spawnpid = fork();
@@ -334,7 +334,7 @@ int main() {
       }
 
       // Check if command is sleep
-      if(!strcmp(curr_command->argv[0], "sleep")) {
+      else if(!strcmp(curr_command->argv[0], "sleep")) {
         pid_t spawnpid = -5;
         int childStatus;
         spawnpid = fork();
@@ -361,7 +361,7 @@ int main() {
       }
 
       // Check if command is status
-      if(!strcmp(curr_command->argv[0], "status")) {
+      else if(!strcmp(curr_command->argv[0], "status")) {
         switch(status) {
           case 0:
             printf("Exit status %d\n", status);

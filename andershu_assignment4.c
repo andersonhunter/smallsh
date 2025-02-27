@@ -59,6 +59,8 @@ struct cli *parse_input(struct cli *curr_command) {
     else if(!strcmp(token, ">")) {
       // Copy user inputted output file to struct
       curr_command->output_file = strdup(strtok(NULL, " \n"));
+      curr_command->argv[curr_command->argc] = strdup(curr_command->input_file);
+      curr_command->argc++;
     }
     // Determine if user specified background process
     else if (!strcmp(token, "&")) {

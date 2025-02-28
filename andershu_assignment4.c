@@ -36,6 +36,7 @@ struct cli *parse_input(struct cli *curr_command) {
   // Adapted from sample_parser.c starter code
   char input[INPUT_LENGTH];                                              // Hold user input
   curr_command->argc = 0;
+  curr_command->output_file = NULL;
   // Get input
   printf(": ");                       // Print command prompt
   fflush(stdout);                     // Flush stdoutput
@@ -58,9 +59,8 @@ struct cli *parse_input(struct cli *curr_command) {
     // Determine if user specified output file
     else if(!strcmp(token, ">")) {
       // Copy user inputted output file to struct
+      curr_command->output_file = malloc(sizeof(char) * strlen(input));
       curr_command->output_file = strdup(strtok(NULL, " \n"));
-      curr_command->argv[curr_command->argc] = strdup(curr_command->input_file);
-      curr_command->argc++;
     }
     // Determine if user specified background process
     else if (!strcmp(token, "&")) {
@@ -174,7 +174,7 @@ int main() {
       }
       temp = temp->next;
     }
-    
+
     // Check for input
     parse_input(curr_command);
 
@@ -262,6 +262,8 @@ int main() {
       else if(!strcmp(curr_command->argv[0], "ls")) {
         pid_t spawnpid = -5;
         int childStatus;
+        int fd;
+        int newfd;
         spawnpid = fork();
         switch (spawnpid) {
           case -1:
@@ -271,6 +273,15 @@ int main() {
             break;
           case 0:
             // Child process, list files
+            if(curr_command->output_file != NULL) {
+              // User requested output redirection
+              fd = open(curr_command->output_file, O_RDWR);  // Open file to redirect to
+              newfd = dup2(fd, 1);                           // Redirect stdout to new file
+              if(newfd == -1) {
+                perror("dup2");
+                exit(EXIT_FAILURE);
+              }
+            }
             execvp(curr_command->argv[0], curr_command->argv);
             perror("execvp");
             exit(EXIT_FAILURE);
@@ -344,7 +355,7 @@ int main() {
             break;
           case 0:
             // Child process
-            execvp(curr_command->argv[0], curr_command->argv);
+            execvp("cat", curr_command->argv);
             perror("execvp");
             break;
           default:
@@ -459,6 +470,7 @@ int main() {
     }
 
     fflush(stdout);
+    free(curr_command->output_file);
     free(curr_command);
   }
 

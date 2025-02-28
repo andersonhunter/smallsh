@@ -457,6 +457,43 @@ int main() {
         }
       }
 
+      // Check if command is mkdir
+      else if(!strcmp(curr_command->argv[0], "mkdir")) {
+        pid_t spawnpid = -5;
+        int childStatus;
+        DIR* newDir;
+        spawnpid = fork();
+        switch(spawnpid) {
+          case -1:
+            perror("error\n");
+            break;
+          case 0:
+            // Child process
+            newDir = opendir(curr_command->argv[1]);
+            if(newDir!=NULL) {
+              printf("directory %s already exists\n", curr_command->argv[1]);
+              exit(EXIT_SUCCESS);
+            }
+            closedir(newDir);
+            execvp(curr_command->argv[0], curr_command->argv);
+            perror("error creating new file\n");
+            exit(EXIT_FAILURE);
+          default:
+            // Parent process
+            if(curr_command->is_bg == true) {
+              newChild(head, spawnpid);
+              printf("background pid is %d\n", spawnpid);
+              fflush(stdout);
+              break;
+            }
+            else {
+              waitpid(spawnpid, &childStatus, 0);
+              break;
+            }
+            break;
+          }
+      }
+
       // Check if command is kill
       else if(!strcmp(curr_command->argv[0], "kill")) {
         pid_t spawnpid = -5;

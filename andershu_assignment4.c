@@ -275,8 +275,8 @@ int main() {
             // Child process, list files
             if(curr_command->output_file != NULL) {
               // User requested output redirection
-              fd = open(curr_command->output_file, O_RDWR);  // Open file to redirect to
-              newfd = dup2(fd, 1);                           // Redirect stdout to new file
+              fd = open(curr_command->output_file, O_CREAT | O_RDWR);  // Open file to redirect to
+              newfd = dup2(fd, 1);                                     // Redirect stdout to new file
               if(newfd == -1) {
                 perror("dup2");
                 exit(EXIT_FAILURE);
@@ -314,19 +314,25 @@ int main() {
           case 0:
             // Child process
             // Check if file exists
-            fd = open(curr_command->input_file, O_RDONLY);
-            if(fd == -1) {
+            fd = open(curr_command->argv[1], O_RDONLY);
+            if(fd == -1 && curr_command->output_file == NULL) {
               // File does not exist, return an error
-              printf("%s: no such file or directory\n", curr_command->input_file);
+              printf("%s: no such file or directory\n", curr_command->argv[1]);
               fflush(stdout);
               exit(EXIT_FAILURE);
             }
-            else {
-              // File exists, close file and call wc
-              close(fd);
+            close(fd);
+            if(curr_command->output_file!=NULL) {
+              // User requested output redirection
+              fd = open(curr_command->output_file, O_CREAT | O_RDWR | O_TRUNC, 0666);
+              if(fd == -1) {
+                perror("error opening or creating file");
+                exit(EXIT_FAILURE);
+              }
+              dup2(fd, 1);
               execvp(curr_command->argv[0], curr_command->argv);
-              perror("execvp");
-              break;
+              perror("error executing command");
+              exit(EXIT_FAILURE);
             }
           default:
             // Parent process
@@ -349,12 +355,36 @@ int main() {
       else if(!strcmp(curr_command->argv[0], "cat")) {
         pid_t spawnpid = -5;
         int childStatus;
+        int fd;
+        int dup;
         spawnpid = fork();
         switch(spawnpid) {
           case -1:
             break;
           case 0:
             // Child process
+            // Check that file is valid
+            fd = open(curr_command->argv[1], O_RDWR);
+            if(curr_command->output_file == NULL && fd == -1) {
+              // File does not exist, return an error
+              printf("%s: no such file or directory\n", curr_command->argv[1]);
+              fflush(stdout);
+              exit(EXIT_FAILURE);
+            }
+            close(fd);
+            if(curr_command->output_file!=NULL) {
+              // User requested input and output redirection
+              fd = open(curr_command->output_file, O_CREAT | O_RDWR | O_TRUNC, 0666);
+              if(fd == -1) {
+                perror("error opening file\n");
+                exit(EXIT_FAILURE);
+              }
+              dup = dup2(fd, 1);
+              if(dup == -1) {
+                perror("error duplicating new file");
+                exit(EXIT_FAILURE);
+              }
+            }
             execvp("cat", curr_command->argv);
             perror("execvp");
             break;

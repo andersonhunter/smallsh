@@ -255,6 +255,9 @@ int main() {
             // Foreground process
             else {
               waitpid(spawnpid, &childStatus, 0);
+              if(childStatus!=0) {
+                status = 1;
+              }
               break;
             }
             break;
@@ -299,6 +302,9 @@ int main() {
             else {
               // Background process
               waitpid(spawnpid, &childStatus, 0);
+              if(childStatus!=0) {
+                status = 1;
+              }
               break;
             }
             break;
@@ -348,6 +354,9 @@ int main() {
             }
             else {
               waitpid(spawnpid, &childStatus, 0);
+              if(childStatus!=0) {
+                status = 1;
+              }
               break;
             }
             break;
@@ -400,6 +409,9 @@ int main() {
             }
             else {
               waitpid(spawnpid, &childStatus, 0);
+              if(childStatus!=0) {
+                status = 1;
+              }
               break;
             }
             break;
@@ -428,6 +440,9 @@ int main() {
             }
             else {
               waitpid(spawnpid, &childStatus, 0);
+              if(childStatus!=0) {
+                status = 1;
+              }
             }
             break;
         }
@@ -455,6 +470,9 @@ int main() {
             }
             else {
               waitpid(spawnpid, &childStatus, 0);
+              if(childStatus!=0) {
+                status = 1;
+              }
             }
             break;
         }
@@ -491,6 +509,9 @@ int main() {
             }
             else {
               waitpid(spawnpid, &childStatus, 0);
+              if(childStatus!=0) {
+                status = 1;
+              }
               break;
             }
             break;
@@ -521,10 +542,7 @@ int main() {
             }
             else {
               waitpid(spawnpid, &childStatus, 0);
-              if(childStatus == 0) {
-                status = 0;
-              }
-              else {
+              if(childStatus!=0) {
                 status = 1;
               }
             }
@@ -554,6 +572,9 @@ int main() {
             }
             else {
               waitpid(spawnpid, &childStatus, 0);
+              if(childStatus!=0) {
+                status = 1;
+              }
             }
             break;
         }

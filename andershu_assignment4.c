@@ -17,6 +17,9 @@
 #define INPUT_LENGTH 2048
 #define MAX_ARGS 512
 
+// Define mode. 0 = default, 1 = fg only
+int mode = 0;
+
 struct cli {
   // Adapted from sample_parser.c starter code
   char *argv[MAX_ARGS + 1];  // Hold up to MAX_ARGS number of arguments
@@ -65,7 +68,7 @@ struct cli *parse_input(struct cli *curr_command) {
       curr_command->output_file = strdup(strtok_r(NULL, " \n", &savePtr));
     }
     // Determine if user specified background process
-    else if (!strcmp(token, "&")) {
+    else if (!strcmp(token, "&") && mode != 1) {
       // Set bg to true
       curr_command->is_bg = true;
     }
@@ -149,8 +152,18 @@ void handleSIGTSTP(int signo) {
   A helper method to handle the Ctrl-Z command
   When Ctrl-Z is received, toggle on foreground-only mode
   */
- char* message = "\nEntering foreground-only mode (& is now ignored)\n";
- write(STDOUT_FILENO, message, 50);
+ char* message1 = "\nEntering foreground-only mode (& is now ignored)\n";
+ char* message2 = "\nExiting foreground-only mode\n";
+ if(mode == 0) {
+  // Toggle into fg only mode
+  mode = 1;
+  write(STDOUT_FILENO, message1, 51);
+ }
+ else {
+  // Toggle back out of fg only mode
+  mode = 0;
+  write(STDOUT_FILENO, message2, 31);
+ }
 }
 
 int main() {
@@ -168,12 +181,10 @@ int main() {
   // Set status for last foreground process
   int status = 0;
 
-  // Track mode (fg only, bg only, etc)
-  // Default to 0, change to 1 for fg only
-  int mode = 0;
-
   // Loop until user exits
   while(true) {
+    printf("Mode = %d\n", mode);
+    fflush(stdout);
     // Set up current command
     struct cli *curr_command = malloc(sizeof(struct cli));
     curr_command->argc = 0;
@@ -181,7 +192,6 @@ int main() {
 
     // Install signal handler for SIGTSTP
     sigaction(SIGTSTP, &SIGTSTP_action, NULL);
-    fflush(stdout);
 
     // Check if any background children have finished
     struct children *temp = head;

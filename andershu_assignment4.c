@@ -42,9 +42,10 @@ struct cli *parse_input(struct cli *curr_command) {
   curr_command->output_file = NULL;
   curr_command->input_file = NULL;
   // Get input
+  fflush(stdout);
   printf(": ");                       // Print command prompt
   fflush(stdout);                     // Flush stdoutput
-  fgets(input, INPUT_LENGTH, stdin);  // Get input from stdinput
+  fgets(input, INPUT_LENGTH, stdin);
   
   // Tokenize input
   char* savePtr;
@@ -171,7 +172,7 @@ int main() {
   struct sigaction SIGTSTP_action = {0};      // Create sigaction struct for SIGTSTP
   SIGTSTP_action.sa_handler = handleSIGTSTP;  // Set signal handler for SIGTSTP
   sigfillset(&SIGTSTP_action.sa_mask);        // Block all catchable signals while handler is running
-  SIGTSTP_action.sa_flags = 0;                // Unset flags
+  SIGTSTP_action.sa_flags = SA_RESTART;       // Restart calls on error
 
   // Install signal handler for SIGTSTP
   sigaction(SIGTSTP, &SIGTSTP_action, NULL);

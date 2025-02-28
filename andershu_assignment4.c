@@ -34,7 +34,7 @@ struct children {
 
 struct cli *parse_input(struct cli *curr_command) {
   // Adapted from sample_parser.c starter code
-  char input[INPUT_LENGTH];                                              // Hold user input
+  char input[INPUT_LENGTH];           // Hold user input
   curr_command->argc = 0;
   curr_command->output_file = NULL;
   curr_command->input_file = NULL;

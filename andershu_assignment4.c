@@ -147,11 +147,11 @@ int main() {
   struct children *head = malloc(sizeof(struct children));
   head->pid = 0;
   head->next = NULL;
+  int status = 0;
   while(true) {
     struct cli *curr_command = malloc(sizeof(struct cli));
     curr_command->argc = 0;
     curr_command->is_bg = false;
-    int status = 0;
 
     // Check if any background children have finished
     struct children *temp = head;
@@ -497,6 +497,41 @@ int main() {
           }
       }
 
+      // Check if command is test
+      else if(!strcmp(curr_command->argv[0], "test")) {
+        pid_t spawnpid = -5;
+        int childStatus;
+        spawnpid = fork();
+        switch(spawnpid) {
+          case -1:
+            perror("error spawning child");
+            exit(EXIT_FAILURE);
+          case 0:
+            // Child process
+            execvp(curr_command->argv[0], curr_command->argv);
+            perror("error with test command");
+            exit(EXIT_FAILURE);
+          default:
+            // Parent process
+            if(curr_command->is_bg == true) {
+              newChild(head, spawnpid);
+              printf("background pid is %d\n", spawnpid);
+              fflush(stdout);
+              break;
+            }
+            else {
+              waitpid(spawnpid, &childStatus, 0);
+              if(childStatus == 0) {
+                status = 0;
+              }
+              else {
+                status = 1;
+              }
+            }
+            break;
+        }
+      }
+
       // Check if command is kill
       else if(!strcmp(curr_command->argv[0], "kill")) {
         pid_t spawnpid = -5;
@@ -526,11 +561,8 @@ int main() {
 
       // Check if command is status
       else if(!strcmp(curr_command->argv[0], "status")) {
-        switch(status) {
-          case 0:
-            printf("exit value %d\n", status);
-            break;
-        }
+        printf("exit value %d\n", status);
+        fflush(stdout);
       }
       // Handle a bad command
       else {

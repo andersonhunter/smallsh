@@ -173,6 +173,9 @@ int main() {
   sigfillset(&SIGTSTP_action.sa_mask);        // Block all catchable signals while handler is running
   SIGTSTP_action.sa_flags = 0;                // Unset flags
 
+  // Install signal handler for SIGTSTP
+  sigaction(SIGTSTP, &SIGTSTP_action, NULL);
+
   // Initialize children LL
   struct children *head = malloc(sizeof(struct children));
   head->pid = 0;
@@ -187,9 +190,6 @@ int main() {
     struct cli *curr_command = malloc(sizeof(struct cli));
     curr_command->argc = 0;
     curr_command->is_bg = false;
-
-    // Install signal handler for SIGTSTP
-    sigaction(SIGTSTP, &SIGTSTP_action, NULL);
 
     // Check if any background children have finished
     struct children *temp = head;

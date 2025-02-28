@@ -37,6 +37,7 @@ struct cli *parse_input(struct cli *curr_command) {
   char input[INPUT_LENGTH];                                              // Hold user input
   curr_command->argc = 0;
   curr_command->output_file = NULL;
+  curr_command->input_file = NULL;
   // Get input
   printf(": ");                       // Print command prompt
   fflush(stdout);                     // Flush stdoutput

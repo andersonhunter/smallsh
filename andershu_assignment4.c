@@ -333,10 +333,10 @@ int main() {
                 exit(EXIT_FAILURE);
               }
               dup2(fd, 1);
-              execvp(curr_command->argv[0], curr_command->argv);
-              perror("error executing command");
-              exit(EXIT_FAILURE);
             }
+            execvp(curr_command->argv[0], curr_command->argv);
+            perror("error executing command");
+            exit(EXIT_FAILURE);
           default:
             // Parent process
             if(curr_command->is_bg == true) {

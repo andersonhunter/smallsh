@@ -44,7 +44,8 @@ struct cli *parse_input(struct cli *curr_command) {
   fgets(input, INPUT_LENGTH, stdin);  // Get input from stdinput
   
   // Tokenize input
-  char *token = strtok(input, " \n");
+  char* savePtr;
+  char *token = strtok_r(input, " \n", &savePtr);
   while(token) {
     // Determine if user entered a comment
     if(!strncmp(token, "#", 1) && curr_command->argc == 0) {
@@ -53,7 +54,7 @@ struct cli *parse_input(struct cli *curr_command) {
     // Determine if user specified input file
     else if(!strcmp(token, "<")) {
       // Copy user inputted input file to command struct
-      curr_command->input_file = strdup(strtok(NULL, " \n"));
+      curr_command->input_file = strdup(strtok_r(NULL, " \n", &savePtr));
       curr_command->argv[curr_command->argc] = strdup(curr_command->input_file);
       curr_command->argc++;
     }
@@ -61,7 +62,7 @@ struct cli *parse_input(struct cli *curr_command) {
     else if(!strcmp(token, ">")) {
       // Copy user inputted output file to struct
       curr_command->output_file = malloc(sizeof(char) * strlen(input));
-      curr_command->output_file = strdup(strtok(NULL, " \n"));
+      curr_command->output_file = strdup(strtok_r(NULL, " \n", &savePtr));
     }
     // Determine if user specified background process
     else if (!strcmp(token, "&")) {
@@ -73,7 +74,7 @@ struct cli *parse_input(struct cli *curr_command) {
       curr_command->argv[curr_command->argc] = strdup(token);
       curr_command->argc++;
     }
-    token = strtok(NULL, " \n");
+    token = strtok_r(NULL, " \n", &savePtr);
   }
   curr_command->argv[curr_command->argc] = '\0'; // Null terminate arg vector
   return curr_command;

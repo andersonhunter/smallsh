@@ -183,8 +183,6 @@ int main() {
 
   // Loop until user exits
   while(true) {
-    printf("Mode = %d\n", mode);
-    fflush(stdout);
     // Set up current command
     struct cli *curr_command = malloc(sizeof(struct cli));
     curr_command->argc = 0;

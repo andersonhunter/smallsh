@@ -149,9 +149,7 @@ void handleSIGTSTP(int signo) {
   When Ctrl-Z is received, toggle on foreground-only mode
   */
  char* message = "\nEntering foreground-only mode (& is now ignored)\n";
- fflush(stdout);
- write(STDOUT_FILENO, message, strlen(message));
- fflush(stdout);
+ write(STDOUT_FILENO, message, 50);
 }
 
 int main() {
@@ -169,6 +167,10 @@ int main() {
   // Set status for last foreground process
   int status = 0;
 
+  // Track mode (fg only, bg only, etc)
+  // Default to 0, change to 1 for fg only
+  int mode = 0;
+
   // Loop until user exits
   while(true) {
     // Set up current command
@@ -178,6 +180,7 @@ int main() {
 
     // Install signal handler for SIGTSTP
     sigaction(SIGTSTP, &SIGTSTP_action, NULL);
+    fflush(stdout);
 
     // Check if any background children have finished
     struct children *temp = head;

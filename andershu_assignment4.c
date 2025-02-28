@@ -215,10 +215,12 @@ int main() {
           strcat(newDir, curr_command->argv[1] + 1);       // Append user-defined new directory without leading chars
           chdir(newDir);                                   // Change cwd to new dir
           setenv("PWD", newDir, 1);                        // Set env variable for cwd to new directory path
+          printf("new wd should be %s and is %s\n", newDir, getenv("PWD"));
           free(newDir);
         }
         // Absolute path chosen
         else {
+          chdir(curr_command->argv[1]);
           setenv("PWD", curr_command->argv[1], 1);         // Set pwd env variable to user-chosen absolute path
         }
       }

@@ -143,15 +143,41 @@ void removeChild(struct children *head, struct children *previous, struct childr
  }
 }
 
+void handleSIGTSTP(int signo) {
+  /*
+  A helper method to handle the Ctrl-Z command
+  When Ctrl-Z is received, toggle on foreground-only mode
+  */
+ char* message = "\nEntering foreground-only mode (& is now ignored)\n";
+ fflush(stdout);
+ write(STDOUT_FILENO, message, strlen(message));
+ fflush(stdout);
+}
+
 int main() {
+  // Set up signal handler for SIGTSTP
+  struct sigaction SIGTSTP_action = {0};      // Create sigaction struct for SIGTSTP
+  SIGTSTP_action.sa_handler = handleSIGTSTP;  // Set signal handler for SIGTSTP
+  sigfillset(&SIGTSTP_action.sa_mask);        // Block all catchable signals while handler is running
+  SIGTSTP_action.sa_flags = 0;                // Unset flags
+
+  // Initialize children LL
   struct children *head = malloc(sizeof(struct children));
   head->pid = 0;
   head->next = NULL;
+
+  // Set status for last foreground process
   int status = 0;
+
+  // Loop until user exits
   while(true) {
+    // Set up current command
     struct cli *curr_command = malloc(sizeof(struct cli));
     curr_command->argc = 0;
     curr_command->is_bg = false;
+
+    // Install signal handler for SIGTSTP
+    sigaction(SIGTSTP, &SIGTSTP_action, NULL);
 
     // Check if any background children have finished
     struct children *temp = head;

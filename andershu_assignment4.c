@@ -73,7 +73,7 @@ struct cli *parse_input(struct cli *curr_command) {
       // Set bg to true
       curr_command->is_bg = true;
     }
-    else if (strcmp(token, " ")) {
+    else if (strcmp(token, " ") && strcmp(token, "&")) {
       // Set next argument field to token, increment argument
       curr_command->argv[curr_command->argc] = strdup(token);
       curr_command->argc++;
@@ -459,6 +459,7 @@ int main() {
 
       // Check if command is sleep
       else if(!strcmp(curr_command->argv[0], "sleep")) {
+        fflush(stdout);
         pid_t spawnpid = -5;
         int childStatus;
         spawnpid = fork();

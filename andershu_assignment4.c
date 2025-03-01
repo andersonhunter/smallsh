@@ -201,18 +201,21 @@ int main() {
       int cpid;
       cpid = waitpid(temp->pid, &childStatus, WNOHANG);
       if(cpid == temp->pid) {
-        // Background process completed by exiting
-        printf("background pid %d is done: exit value %d\n", temp->pid, WEXITSTATUS(childStatus));
-        fflush(stdout);
-        head = removeChild(head, previous, temp);
-        temp = previous;
-      }
-      else if(WIFSIGNALED(childStatus)) {
-        // Background process completed via signal termination
-        printf("background pid %d is done: terminated by signal %d\n", temp->pid, WTERMSIG(childStatus));
-        fflush(stdout);
-        // head = removeChild(head, previous, temp);
-        // temp = previous;
+        // Background process completed
+        if(WIFEXITED(childStatus)) {
+          // Child finished via exiting
+          printf("background pid %d is done: exit value %d\n", temp->pid, WEXITSTATUS(childStatus));
+          fflush(stdout);
+          head = removeChild(head, previous, temp);
+          temp = previous;
+        }
+        else if(WIFSIGNALED(childStatus)) {
+          // Background process completed via signal termination
+          printf("background pid %d is done: terminated by signal %d\n", temp->pid, WTERMSIG(childStatus));
+          fflush(stdout);
+          head = removeChild(head, previous, temp);
+          temp = previous;
+        }
       }
       temp = temp->next;
     }
@@ -229,7 +232,7 @@ int main() {
         while(temp!=NULL) {
           int childStatus;
           struct children *previous;
-          kill(temp->pid, 15);                            // Kill the child with SIGTERM
+          kill(temp->pid, 15);                        // Kill the child with SIGTERM
           waitpid(temp->pid, &childStatus, WNOHANG);  // Check child exit status
           if(WIFSIGNALED(childStatus)) {
             // Child was killed by a signal, print the signal

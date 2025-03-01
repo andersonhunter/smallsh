@@ -125,7 +125,7 @@ void printChildren(struct children *head) {
   }
 }
 
-void removeChild(struct children *head, struct children *previous, struct children *removeNode) {
+struct children* removeChild(struct children *head, struct children *previous, struct children *removeNode) {
   /*
   A helper method to remove an inactive child 
   Receives the head of the LL, the previous child, and the child to remove
@@ -146,6 +146,7 @@ void removeChild(struct children *head, struct children *previous, struct childr
   previous->next = removeNode->next;
   free(removeNode);
  }
+ return head;
 }
 
 void handleSIGTSTP(int signo) {
@@ -197,20 +198,21 @@ int main() {
     struct children *previous = head;
     while(temp!=NULL && temp->pid != 0) {
       int childStatus;
-      waitpid(temp->pid, &childStatus, WNOHANG);
-      if(WIFEXITED(childStatus)) {
+      int cpid;
+      cpid = waitpid(temp->pid, &childStatus, WNOHANG);
+      if(cpid == temp->pid) {
         // Background process completed by exiting
         printf("background pid %d is done: exit value %d\n", temp->pid, WEXITSTATUS(childStatus));
         fflush(stdout);
-        removeChild(head, previous, temp);
+        head = removeChild(head, previous, temp);
         temp = previous;
       }
       else if(WIFSIGNALED(childStatus)) {
         // Background process completed via signal termination
         printf("background pid %d is done: terminated by signal %d\n", temp->pid, WTERMSIG(childStatus));
         fflush(stdout);
-        removeChild(head, previous, temp);
-        temp = previous;
+        // head = removeChild(head, previous, temp);
+        // temp = previous;
       }
       temp = temp->next;
     }
@@ -227,7 +229,7 @@ int main() {
         while(temp!=NULL) {
           int childStatus;
           struct children *previous;
-          kill(temp->pid, 15);                        // Kill the child with SIGTERM
+          kill(temp->pid, 15);                            // Kill the child with SIGTERM
           waitpid(temp->pid, &childStatus, WNOHANG);  // Check child exit status
           if(WIFSIGNALED(childStatus)) {
             // Child was killed by a signal, print the signal

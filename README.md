@@ -1,5 +1,5 @@
 ==Welcome to smallsh!==
-Currently, the commands that smallsh supports are:
+Currently, the commands that smallsh supports are:<br>
     | Command | Description      | Builtin? |
     | ------- | ---------------- | -------- |
     | exit    | cleanup and exit | YES      |

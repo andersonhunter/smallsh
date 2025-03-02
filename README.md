@@ -5,6 +5,7 @@ The syntax for running a command is
 where the bracketed items are optional depending on the command. The [&] arg specifies that the command will run in the background.<br><br>
 The shell uses <b>builtin commands</b>, which <b>do not</b> fork a child and thus cannot be run in the background, and <b>non-built in commands</b> which do fork a child and thus <b>can</b> be run in the background.<br><br>
 To run the shell, download the compiled binary, then, from your terminal of choice, cd to the directory containing smallsh and run the command <pre><code>./smallsh</pre></code><br>
+The shell can toggle between foreground-only mode, wherein any non-built in command will ignore the [&] operator and only run in the foreground. The mode is toggled by sending the <i>SIGTSTP</i> signal, generally by using <i>CTRL+Z</i> on Windows (or, I assume, <i>CMD+Z</i> on Mac, but who can ever know).<br><br>
 <i>smallsh</i> supports a number of basic commands, and I am adding more as time allows.<br><br>
 Currently, smallsh supports the following commands:
 <table>
@@ -86,4 +87,9 @@ Currently, smallsh supports the following commands:
 <td align="center">NO</td>
 </tr>
 </tbody>
-</table>
+</table><br><br>
+Some fun facts:<br>
+<ul>
+<li><i>smallsh</i> monitors child processes with a linked list, <a href="https://youtu.be/-TMdron2JhY?si=aSIc3S467XUK1sJw">which we all know are not real</a></li>
+<li><i>smallsh</i> can support up to 2048 characters of input, and 512 maximum arguments. (I'm not really sure why you'd need 512 args...)</li>
+<li>I currently plan on customizing the shell a little more to make it unique, probably following some sort of media-related pun. The best idea I've had so far is based off <i>I Love Lucy</i>, using commands like <i>lucy</i> instead of <i>touch</i>, and [littleRicky] instead of [&] since the background commands spawn a child process</li>

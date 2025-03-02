@@ -12,7 +12,7 @@ Currently, smallsh supports the following commands:
 </thead>
 <tbody>
 <tr>
-<td align="right">cd</td>
-<td align="right">Change current working directory.&#13;&#10;Leave blank for HOME dir, or specify path.&#13;&#10;Path can be relative or absolute.</td>
+<td align="left">cd</td>
+<td align="left">Change current working directory.&#13;&#10;Leave blank for HOME dir, or specify path.&#13;&#10;Path can be relative or absolute.</td>
 <td align="center">YES</td>
 </table>

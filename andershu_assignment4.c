@@ -625,6 +625,36 @@ int main() {
         }
       }
 
+      // Check if command is pkill
+      else if(!strcmp(curr_command->argv[0], "pkill")) {
+        pid_t spawnpid = -5;
+        int childStatus;
+        spawnpid = fork();
+        switch(spawnpid) {
+          case -1:
+            status = 1;
+            break;
+          case 0:
+            // Child process
+            execvp(curr_command->argv[0], curr_command->argv);
+            perror("error executing pkill command\n");
+            exit(EXIT_FAILURE);
+          default:
+            if(curr_command->is_bg == true) {
+              newChild(head, spawnpid);
+              printf("background pid is %d\n", spawnpid);
+              fflush(stdout);
+            }
+            else {
+              waitpid(spawnpid, &childStatus, 0);
+              if(childStatus!=0) {
+                status = 1;
+              }
+            }
+            break;
+        }
+      }
+
       // Check if command is status
       else if(!strcmp(curr_command->argv[0], "status")) {
         printf("exit value %d\n", status);

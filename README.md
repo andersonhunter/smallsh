@@ -93,3 +93,5 @@ Some fun facts:<br>
 <li><i>smallsh</i> monitors child processes with a linked list, <a href="https://youtu.be/-TMdron2JhY?si=aSIc3S467XUK1sJw" target="_blank">which we all know are not real</a></li>
 <li><i>smallsh</i> can support up to 2048 characters of input, and 512 maximum arguments. (I'm not really sure why you'd need 512 args...)</li>
 <li>I currently plan on customizing the shell a little more to make it unique, probably following some sort of media-related pun. The best idea I've had so far is based off <i>I Love Lucy</i>, using commands like <i>lucy</i> instead of <i>touch</i>, and [littleRicky] instead of [&] since the background commands spawn a child process</li>
+<li>At some point, I'll record a video of using the shell so that anybody interested can see it in action without risking downloading some untrusted, unproven software, hehe</li>
+</ul>

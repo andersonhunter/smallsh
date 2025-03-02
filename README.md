@@ -1,20 +1,11 @@
 <head><b>--Welcome to <i>smallsh!</i>--</b></head><br><br>
-
-
 <i>smallsh</i> is a Linux command shell in the style of bash, written in C.<br><br>
-
-
 The syntax for running a command is
 <br><pre><code>command [arg1 arg2 ...] [&lt; input_file] [&gt; output_file] [&]</code></pre>
 where the bracketed items are optional depending on the command. The [&] arg specifies that the command will run in the background.<br><br>
-
-
 The shell uses <b>builtin commands</b>, which <b>do not</b> fork a child and thus cannot be run in the background, and <b>non-built in commands</b> which do fork a child and thus <b>can</b> be run in the background.<br><br>
-
-To run the shell, download the compiled binary, then, from your terminal of choice, cd to the directory containing smallsh and run the command <pre><code>./smallsh</pre><code><br>
-
+To run the shell, download the compiled binary, then, from your terminal of choice, cd to the directory containing smallsh and run the command <pre><code>./smallsh</pre></code><br>
 <i>smallsh</i> supports a number of basic commands, and I am adding more as time allows.<br><br>
-
 Currently, smallsh supports the following commands:
 <table>
 <thead>
